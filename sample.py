@@ -1,7 +1,25 @@
+import os
+
 import idaapi
 
 from sample import NAME
 from sample.utils import debug, error, info
+
+
+def load(plugin_name: str) -> None:
+    """
+    This reloads the plugin python package / modules.
+    This is useful during plugin development
+    """
+    package_name = plugin_name.casefold()
+    package_path = os.path.join(os.path.dirname(__file__), package_name)
+    for entry in os.listdir(package_path):
+        if not entry.endswith(".py"):
+            continue
+
+        module_name = entry[:-3]
+        module_python_path = f"{package_name}.{module_name}"
+        idaapi.require(module_python_path)
 
 
 class Plugin(idaapi.plugin_t):
@@ -27,6 +45,7 @@ class Plugin(idaapi.plugin_t):
         info("-" * 80)
 
     def init(self):
+        load(Plugin.NAME)
         debug("Init")
         try:
             # some initialization routines
